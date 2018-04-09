@@ -7,14 +7,14 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_LocalTag = "445566778899";
+    m_LocalTag = "87654321";
     m_pTimer = new QTimer(this);
     connect(m_pTimer , SIGNAL(timeout() ) ,this,SLOT( onTimeout()));
-    m_pTcpSocket = new  QLocalSocket(this);
-    connect(m_pTcpSocket,SIGNAL(connected()) ,this, SLOT( onConnected() ));
-    connect(m_pTcpSocket,SIGNAL(error(QLocalSocket::LocalSocketError)) ,this ,SLOT( onError( QLocalSocket::LocalSocketError )));
-    connect(m_pTcpSocket,SIGNAL(disconnected()) ,this, SLOT( onDisconnected()));
-    connect(m_pTcpSocket,SIGNAL(readyRead()) ,this , SLOT( onReadMessage()));
+    m_pSocket = new  QLocalSocket(this);
+    connect(m_pSocket,SIGNAL(connected()) ,this, SLOT( onConnected() ));
+    connect(m_pSocket,SIGNAL(error(QLocalSocket::LocalSocketError)) ,this ,SLOT( onError( QLocalSocket::LocalSocketError )));
+    connect(m_pSocket,SIGNAL(disconnected()) ,this, SLOT( onDisconnected()));
+    connect(m_pSocket,SIGNAL(readyRead()) ,this , SLOT( onReadMessage()));
     m_pTimer->start(500);
 
 }
@@ -28,15 +28,15 @@ MainWindow::~MainWindow()
 void MainWindow::connectToServer(QString localtag)
 {
     //m_LocalTag = ips;
-    m_pTcpSocket->abort();
-    m_pTcpSocket->connectToServer(localtag);
+    m_pSocket->abort();
+    m_pSocket->connectToServer(localtag);
     qDebug() << "has link server! ok...";
 }
 
  //发送到控制器
 bool MainWindow::send(const QString &msg)
 {
-    m_pTcpSocket->write(msg.toUtf8());
+    m_pSocket->write(msg.toUtf8());
     return true;
 }
 
@@ -57,13 +57,13 @@ void MainWindow::onTimeout()
 {
     qDebug() << "onTimeout";
     m_pTimer->stop();
-    m_pTcpSocket->abort();
-    m_pTcpSocket->connectToServer(m_LocalTag);
+    m_pSocket->abort();
+    m_pSocket->connectToServer(m_LocalTag);
 }
 //接受服务器发现送来的信息
 void MainWindow::onReadMessage()
 {
-    QString msg = m_pTcpSocket->readAll();
+    QString msg = m_pSocket->readAll();
     qDebug() << msg;
     ui->label_return_mess->setText("这是服务器返回的信息：" + msg);
 }
